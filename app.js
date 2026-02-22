@@ -197,6 +197,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             return;
                         }
 
+                        // Block interaction if reported and not Gérant
+                        if (reports[reportKey] && state.apartment !== 'Gérant') {
+                            alert("⚠️ Ce créneau a été signalé comme abusivement occupé et est temporairement bloqué en attente de l'intervention du gérant.");
+                            return;
+                        }
+
                         state.parking = parkingStr; // Set active parking for the modal action
                         if (bookedBy) {
                             if (bookedBy === state.apartment || state.apartment === 'Gérant') {
