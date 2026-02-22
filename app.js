@@ -299,13 +299,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // RESET BUTTON VISIBILITY (fixing the bug)
         document.getElementById('report-btn').style.display = isCurrent ? 'block' : 'none';
-        document.getElementById('confirm-btn').style.display = 'block';
-        document.getElementById('confirm-btn').innerText = "Confirmer l'annulation";
-        document.getElementById('cancel-btn').innerText = "Fermer";
 
-        document.getElementById('confirm-btn').disabled = false;
-        document.getElementById('confirm-btn').style.opacity = '1';
-        document.getElementById('confirm-btn').style.cursor = 'pointer';
+        const isManager = state.apartment === 'Gérant';
+        if (isCurrent && !isManager) {
+            document.getElementById('confirm-btn').style.display = 'none';
+            document.getElementById('modal-details').innerHTML += `<br><br><span style="color:var(--accent);">⚠️ Cette réservation est en cours. Veuillez utiliser le bouton "Check Out" en haut de la page pour la terminer anticipativement.</span>`;
+        } else {
+            document.getElementById('confirm-btn').style.display = 'block';
+            document.getElementById('confirm-btn').innerText = "Confirmer l'annulation";
+            document.getElementById('confirm-btn').disabled = false;
+            document.getElementById('confirm-btn').style.opacity = '1';
+            document.getElementById('confirm-btn').style.cursor = 'pointer';
+        }
+
+        document.getElementById('cancel-btn').innerText = "Fermer";
 
         selectedSlotToBook = { type: 'cancel', slotId: slotId, day: dayData.key };
         modal.classList.add('active');
