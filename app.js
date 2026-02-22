@@ -264,7 +264,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const reservationCount = countActiveReservations(state.apartment);
+        const reservationStats = countActiveReservations(state.apartment);
+        const reservationCount = reservationStats.effective;
+        const abusedCount = reservationStats.abused;
         const isManager = state.apartment === 'Gérant';
         const isLimitReached = !isManager && reservationCount >= 2;
 
@@ -274,6 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
             le <strong>${dayData.label.replace('<br>', ' ')}</strong> de <strong>${block.label.replace('<br>', ' ')}</strong> ?<br><br>
             ${isLimitReached ? '<span style="color:var(--danger)">⚠️ Vous avez déjà atteint la limite de 2 réservations.</span>' : ''}
             ${(!isManager && reservationCount === 1) ? '<span style="color:var(--accent)">ℹ️ Il vous restera 0 réservation après celle-ci (limite: 2).</span>' : ''}
+            ${(!isManager && abusedCount > 0) ? `<span style="color:var(--success)">ℹ️ Vous avez signalé ${abusedCount} abus sur vos réservations. Ces créneaux ne sont pas comptés dans votre limite.</span><br>` : ''}
             ${isManager ? '<span style="color:var(--accent)">ℹ️ Mode Gérant actif. Réservations illimitées.</span>' : ''}
         `;
 
@@ -368,15 +371,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function countActiveReservations(apt) {
         let count = 0;
+        let abused = 0;
         // Look through all parkings and days for reservations by this apartment
         for (const p in reservations) {
             for (const d in reservations[p]) {
                 for (const s in reservations[p][d]) {
-                    if (reservations[p][d][s] === apt) count++;
+                    if (reservations[p][d][s] === apt) {
+                        count++;
+                        const reportKey = `${d}_${s}_${p}`;
+                        if (reports[reportKey] && reports[reportKey].by === apt) {
+                            abused++;
+                        }
+                    }
                 }
             }
         }
-        return count;
+        return { total: count, abused: abused, effective: count - abused };
     }
 
     function getDayName(dayIndex) {
