@@ -178,12 +178,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             spotDiv.classList.add('occupied');
                             icon = `<span class="status-icon booked" style="color: var(--danger);">Place ${p} 🔴</span> <div class="apt-label">Apt ${bookedBy}</div>`;
                         }
-                    } else {
-                        // Check for reports on empty/wrong slots
-                        const reportKey = `${dayStr}_${slotId}_${p}`;
-                        if (reports[reportKey]) {
-                            icon += `<br><span class="report-badge">🚨 SIGNALÉ : OCCUPÉ</span>`;
-                        }
+                    }
+
+                    // Check for reports on any slot (empty or occupied)
+                    const reportKey = `${dayStr}_${slotId}_${p}`;
+                    if (reports[reportKey]) {
+                        icon += `<br><span class="report-badge">🚨 SIGNALÉ</span>`;
+                        spotDiv.style.border = "2px dashed #dc3545"; // Add visual emphasis
                     }
 
                     spotDiv.innerHTML = icon;
@@ -323,8 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('modal-details').innerHTML = `
             Ce créneau est réservé par l'<strong>Appartement ${bookedBy}</strong>.<br>
             Place ${state.parking}, le ${dayData.label.replace('<br>', ' ')}<br>
-            Horaire : ${block.label.replace('<br>', ' ')}<br><br>
-            <span style="font-size: 0.9rem;">Si vous constatez qu'un autre véhicule occupe la place sans autorisation, vous pouvez le signaler.</span>
+            Horaire : ${block.label.replace('<br>', ' ')}
         `;
 
         // Only allow reporting for the current slot
@@ -401,8 +401,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.getElementById('modal-title').innerText = "Abus signalé";
         document.getElementById('modal-details').innerHTML = `
-            <div style="border: 2px solid #dc3545; color: #dc3545; background-color: #f8d7da; padding: 15px; margin-top: 15px; font-weight: bold; font-size: 1.2em; text-align: center; border-radius: 8px;">
-                Le stationnement non autorisé sur une place réservée est nuisible à l'ensemble des locataires de l'immeuble.
+            <div style="text-align: center; margin-top: 15px;">
+                Le signalement a été transmis au gérant. Une icône d'avertissement est maintenant visible sur ce créneau.
             </div>
         `;
         document.getElementById('report-btn').style.display = 'none';
