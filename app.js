@@ -619,14 +619,12 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(checkActiveReservation, 1000);
 
     // Sync database with the backend server every 2 seconds quietly so realtime users see updates
-    if (trackingToken !== 'gerant_bypass_26') {
-        setInterval(async () => {
-            await fetchDB();
-            renderGrid();
-            checkActiveReservation();
-            renderStats();
-        }, 2000);
-    }
+    setInterval(async () => {
+        await fetchDB();
+        renderGrid();
+        checkActiveReservation();
+        renderStats();
+    }, 2000);
 
     function renderStats() {
         const statsGrid = document.getElementById('stats-grid');
