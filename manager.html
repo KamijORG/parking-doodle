@@ -249,8 +249,8 @@
 
                 const parts = key.split('_');
                 const day = parts[0];
-                const slotId = parts[1];
-                const parking = parts[2];
+                const slotId = parts[1] + '_' + parts[2];
+                const parking = parts[3];
                 const timeStr = reportDate.toLocaleString('fr-FR');
 
                 const card = document.createElement('div');
