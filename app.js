@@ -380,8 +380,18 @@ document.addEventListener('DOMContentLoaded', () => {
             at: Date.now()
         };
         await saveDB();
-        showToast("Signalement envoyé");
-        modal.classList.remove('active');
+
+        document.getElementById('modal-title').innerText = "Abus signalé";
+        document.getElementById('modal-details').innerHTML = `
+            <div style="border: 2px solid #dc3545; color: #dc3545; background-color: #f8d7da; padding: 15px; margin-top: 15px; font-weight: bold; font-size: 1.2em; text-align: center; border-radius: 8px;">
+                Le stationnement non autorisé sur une place réservée est nuisible à l'ensemble des locataires de l'immeuble.
+            </div>
+        `;
+        document.getElementById('report-btn').style.display = 'none';
+        document.getElementById('confirm-btn').style.display = 'none';
+        document.getElementById('cancel-btn').innerText = "Fermer";
+
+        showToast("Signalement envoyé.");
         renderGrid();
     });
 
