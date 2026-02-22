@@ -127,14 +127,15 @@
             </p>
 
 
-            <div class="qr-grid" id="manager-qr-grid"
-                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
-                <!-- QR Codes will be injected here -->
+            <div id="manager-qr-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; min-height: 150px; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 12px;">
+                <div style="text-align:center; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">Chargement
+                    des QR codes...</div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
         let db = { reservations: {}, penalties: {}, reports: {}, logs: [] };
 
