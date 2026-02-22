@@ -605,39 +605,54 @@ document.addEventListener('DOMContentLoaded', () => {
         const thisMonth = now.getMonth();
         const thisYear = now.getFullYear();
 
-        const usage = { "1": 0, "2": 0, "3": 0, "4": 0 };
+        let myUsage = 0;
+        const myLogs = [];
+
         logs.forEach(log => {
-            const logDate = new Date(log.timestamp);
-            if (logDate.getMonth() === thisMonth && logDate.getFullYear() === thisYear) {
-                usage[log.apt] = (usage[log.apt] || 0) + 3; // Approx 3h per block
+            if (log.apt === state.apartment) {
+                myLogs.push(log);
+                const logDate = new Date(log.timestamp);
+                if (logDate.getMonth() === thisMonth && logDate.getFullYear() === thisYear) {
+                    myUsage += 3; // Approx 3h per block
+                }
             }
         });
 
         statsGrid.innerHTML = '';
-        [1, 2, 3, 4].forEach(apt => {
+        if (state.apartment) {
             const card = document.createElement('div');
             card.className = 'stats-card';
             card.innerHTML = `
-                <span class="val">${usage[apt]}h</span>
-                <span class="label">Apt ${apt}</span>
+                <span class="val">${myUsage}h</span>
+                <span class="label">Apt ${state.apartment}</span>
             `;
-            statsGrid.innerHTML += card.outerHTML;
-        });
+            statsGrid.appendChild(card);
+        } else {
+            statsGrid.innerHTML = '<p style="text-align:center; width:100%;">Veuillez sélectionner votre appartement pour voir vos statistiques.</p>';
+        }
 
         // History table
         historyBody.innerHTML = '';
-        const sortedLogs = [...logs].reverse().slice(0, 10); // Show last 10
-        sortedLogs.forEach(log => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${log.day}</td>
-                <td>Place ${log.p}</td>
-                <td>Apt ${log.apt}</td>
-                <td>${log.slot}</td>
-                <td style="color:${log.status.includes('OK') ? 'var(--success)' : 'var(--warning)'}">${log.status}</td>
-            `;
-            historyBody.appendChild(row);
-        });
+        if (state.apartment) {
+            const sortedLogs = [...myLogs].reverse().slice(0, 10); // Show last 10
+            if (sortedLogs.length === 0) {
+                historyBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Aucun historique personnel.</td></tr>';
+            } else {
+                sortedLogs.forEach(log => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${log.day}</td>
+                        <td>Place ${log.p}</td>
+                        <td>Apt ${log.apt}</td>
+                        <td>${log.slot}</td>
+                        <td style="color:${log.status.includes('OK') ? 'var(--success)' : 'var(--warning)'}">${log.status}</td>
+                    `;
+                    historyBody.appendChild(row);
+                });
+            }
+        } else {
+            historyBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Veuillez sélectionner votre appartement.</td></tr>';
+        }
     }
 
     // Check if we should show the abuse warning splash screen
