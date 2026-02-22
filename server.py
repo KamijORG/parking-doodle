@@ -63,8 +63,10 @@ def get_tokens():
     return {}
 
 def check_auth(username, password):
-    # Identifiants simples pour l'accès gérant
-    return username == 'admin' and password == 'parking26'
+    # Identifiants simples pour l'accès gérant (insensible à la casse)
+    if not username or not password:
+        return False
+    return username.lower() == 'admin' and password.lower() == 'parking26'
 
 def authenticate():
     return Response(
