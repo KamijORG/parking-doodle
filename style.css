@@ -144,19 +144,17 @@ header p {
 
 .schedule-container {
     width: 100%;
-    overflow-x: auto;
-    padding-bottom: 8px;
-    scrollbar-width: thin;
-    -webkit-overflow-scrolling: touch;
-    /* smooth scroll on iOS */
 }
 
 .schedule-grid.week-view {
     display: grid;
     grid-template-columns: 100px repeat(8, minmax(90px, 1fr));
     gap: 4px;
-    min-width: 850px;
-    /* ensure content isn't squished, force scroll */
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
 }
 
 .grid-cell {
