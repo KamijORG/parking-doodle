@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking - Réservation</title>
+    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>🅿️ Parking</h1>
+            <p>Réservation des places de parc pour l'immeuble</p>
+        </header>
+
+        <!-- Apartment Picker Removed: Users will access via specific QR codes -->
+
+        <!-- <section class="parking-selector"> Removed since both places are now in the schedule grid </section> -->
+
+        <nav class="day-selector" style="display: none;">
+            <!-- Removed for week view -->
+        </nav>
+
+        <section id="active-reservation-banner" class="active-banner" style="display: none;">
+            <div class="banner-content">
+                <h3>Votre réservation en cours</h3>
+                <p>Temps restant : <span id="countdown">--:--:--</span></p>
+            </div>
+            <button id="checkout-btn" class="primary">Check Out</button>
+        </section>
+
+        <div class="schedule-container">
+            <main class="schedule-grid week-view" id="schedule">
+                <!-- Time slots will be injected here -->
+            </main>
+        </div>
+
+
+        <section id="stats-section" class="stats-section">
+            <div class="stats-header">
+                <h2>📊 Statistiques & Historique</h2>
+                <p>Utilisation du mois en cours</p>
+            </div>
+            <div id="stats-grid" class="stats-grid">
+                <!-- Stats cards will be injected here -->
+            </div>
+            <div class="history-table-container">
+                <table id="history-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Place</th>
+                            <th>Appartement</th>
+                            <th>Créneau</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body">
+                        <!-- History rows will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2026 Parking Réservation - <a href="manager.html"
+                    style="color: var(--primary); text-decoration: none; font-weight: bold;">👤 Accès Gérant</a></p>
+        </footer>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-title">Confirmer la réservation</h3>
+            <p id="modal-details"></p>
+            <div class="modal-actions">
+                <button id="report-btn" class="secondary danger-text" style="margin-right: auto;">🚨 Signaler
+                    abus</button>
+                <button id="cancel-btn" class="secondary">Fermer</button>
+                <button id="confirm-btn" class="primary">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="app.js?v=3"></script>
+</body>
+
+</html>

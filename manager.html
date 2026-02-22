@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking - Dashboard Gérant</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .manager-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .report-card {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid var(--danger);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .report-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--danger);
+        }
+
+        .report-info p {
+            margin: 0.25rem 0;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .action-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.2);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-link">← Retour au planning</a>
+            <h1>Dashboard Gérant</h1>
+            <p>Monitoring des abus et signalements</p>
+        </header>
+
+        <div class="manager-container">
+            <h3>Signalements en cours</h3>
+            <div id="reports-list">
+                <!-- Reports will be injected here -->
+            </div>
+        </div>
+
+        <div class="manager-container" style="margin-top: 2rem;">
+            <h3>Historique récent</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Place</th>
+                            <th>Apt</th>
+                            <th>Créneau</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manager-history-body">
+                        <!-- History will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="manager-container" style="margin-top: 2rem;">
+            <h3>QR Codes d'Accès Appartements</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+                Imprimez ces QR codes pour les distribuer aux résidents. Chaque lien est sécurisé par un jeton unique.
+            </p>
+
+
+            <div class="qr-grid" id="manager-qr-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                <!-- QR Codes will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script>
+        let db = { reservations: {}, penalties: {}, reports: {}, logs: [] };
+
+        async function fetchDB() {
+            try {
+                const res = await fetch('/api/db');
+                if (res.ok) {
+                    db = await res.json();
+                    renderReports();
+                    renderHistory();
+                }
+            } catch (e) {
+                console.error('Error fetching DB', e);
+            }
+        }
+
+        let activeTokens = {};
+
+        async function fetchTokens() {
+            try {
+                const res = await fetch('/api/tokens');
+                if (res.ok) {
+                    activeTokens = await res.json();
+                    generateManagerQRCodes(activeTokens);
+                }
+            } catch (e) {
+                console.error('Error fetching tokens', e);
+            }
+        }
+
+        function generateManagerQRCodes(tokens) {
+            const grid = document.getElementById('manager-qr-grid');
+            grid.innerHTML = '';
+
+            const baseUrl = window.location.origin + '/index.html';
+
+            Object.entries(tokens).forEach(([token, apt]) => {
+                const container = document.createElement('div');
+                container.style.background = 'white';
+                container.style.padding = '1rem';
+                container.style.borderRadius = '0.75rem';
+                container.style.textAlign = 'center';
+                container.style.color = '#1e293b';
+
+                const qrDiv = document.createElement('div');
+                qrDiv.style.marginBottom = '0.5rem';
+                qrDiv.style.display = 'flex';
+                qrDiv.style.justifyContent = 'center';
+
+                const label = document.createElement('div');
+                label.style.fontWeight = 'bold';
+                label.innerText = `Appartement ${apt}`;
+
+                container.appendChild(qrDiv);
+                container.appendChild(label);
+                grid.appendChild(container);
+
+                const targetUrl = `${baseUrl}?token=${token}`;
+                new QRCode(qrDiv, {
+                    text: targetUrl,
+                    width: 128,
+                    height: 128,
+                    colorDark: "#1e293b",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+
+                const link = document.createElement('a');
+                link.href = targetUrl;
+                link.innerText = "Lien direct";
+                link.style.fontSize = "0.7rem";
+                link.style.display = "block";
+                link.style.marginTop = "0.5rem";
+                container.appendChild(link);
+            });
+        }
+
+        async function saveDB() {
+            try {
+                await fetch('/api/db', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(db)
+                });
+            } catch (e) {
+                console.error('Error saving DB', e);
+            }
+        }
+
+        function renderReports() {
+            const listEl = document.getElementById('reports-list');
+            listEl.innerHTML = '';
+
+            const reportKeys = Object.keys(db.reports || {});
+            if (reportKeys.length === 0) {
+                listEl.innerHTML = '<div class="empty-state">Aucun signalement en cours.</div>';
+                return;
+            }
+
+            reportKeys.forEach(key => {
+                const report = db.reports[key];
+                const parts = key.split('_');
+                const day = parts[0];
+                const slotId = parts[1];
+                const parking = parts[2];
+                const timeStr = new Date(report.at).toLocaleString('fr-FR');
+
+                const card = document.createElement('div');
+                card.className = 'report-card';
+                card.innerHTML = `
+                    <div class="report-info">
+                        <h4>🚨 ABUS SIGNALÉ : PLACE ${parking}</h4>
+                        <p><strong>Date du créneau :</strong> ${day}</p>
+                        <p><strong>Créneau :</strong> ${slotId ? slotId.replace('slot_', '') : 'N/A'}</p>
+                        <p><strong>Signalé par :</strong> Apt ${report.by}</p>
+                        <p><strong>Le :</strong> ${timeStr}</p>
+                    </div>
+                    <button class="action-btn" onclick="clearReport('${key}')">Marquer comme réglé</button>
+                `;
+                listEl.appendChild(card);
+            });
+        }
+
+        async function clearReport(key) {
+            delete db.reports[key];
+            await saveDB();
+            renderReports();
+        }
+
+        function renderHistory() {
+            const body = document.getElementById('manager-history-body');
+            body.innerHTML = '';
+
+            const logs = db.logs || [];
+            [...logs].reverse().slice(0, 20).forEach(log => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${log.day}</td>
+                    <td>Place ${log.p}</td>
+                    <td>Apt ${log.apt}</td>
+                    <td>${log.slot}</td>
+                    <td style="color:${log.status.includes('OK') ? 'var(--success)' : 'var(--warning)'}">${log.status}</td>
+                `;
+                body.appendChild(row);
+            });
+        }
+
+        // Poll for updates
+        setInterval(fetchDB, 2000);
+        fetchDB();
+        fetchTokens();
+    </script>
+</body>
+
+</html>
