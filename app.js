@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         state.parking = parkingStr; // Set active parking for the modal action
                         if (bookedBy) {
-                            if (bookedBy === state.apartment) {
+                            if (bookedBy === state.apartment || state.apartment === 'Gérant') {
                                 openCancelModal(block, slotId, dayData);
                             } else {
                                 openInfoModal(block, slotId, dayData, bookedBy);
@@ -236,19 +236,22 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (penalties[state.apartment] && penalties[state.apartment].bannedUntil && penalties[state.apartment].bannedUntil > Date.now()) {
+        if (state.apartment !== 'Gérant' && penalties[state.apartment] && penalties[state.apartment].bannedUntil && penalties[state.apartment].bannedUntil > Date.now()) {
             alert("⚠️ Vous ne pouvez pas réserver car vous avez eu 3 retards ou oublis de check-out. Vous êtes suspendu pour 1 semaine.");
             return;
         }
 
         const reservationCount = countActiveReservations(state.apartment);
+        const isManager = state.apartment === 'Gérant';
+        const isLimitReached = !isManager && reservationCount >= 2;
 
         document.getElementById('modal-title').innerText = "Confirmer la réservation";
         document.getElementById('modal-details').innerHTML = `
             Voulez-vous réserver la <strong>Place ${state.parking}</strong><br>
             le <strong>${dayData.label.replace('<br>', ' ')}</strong> de <strong>${block.label.replace('<br>', ' ')}</strong> ?<br><br>
-            ${reservationCount >= 2 ? '<span style="color:var(--danger)">⚠️ Vous avez déjà atteint la limite de 2 réservations.</span>' : ''}
-            ${reservationCount === 1 ? '<span style="color:var(--accent)">ℹ️ Il vous restera 0 réservation après celle-ci (limite: 2).</span>' : ''}
+            ${isLimitReached ? '<span style="color:var(--danger)">⚠️ Vous avez déjà atteint la limite de 2 réservations.</span>' : ''}
+            ${(!isManager && reservationCount === 1) ? '<span style="color:var(--accent)">ℹ️ Il vous restera 0 réservation après celle-ci (limite: 2).</span>' : ''}
+            ${isManager ? '<span style="color:var(--accent)">ℹ️ Mode Gérant actif. Réservations illimitées.</span>' : ''}
         `;
 
         // Check if slot is active right now
@@ -259,9 +262,12 @@ document.addEventListener('DOMContentLoaded', () => {
         end.setHours(block.endHour, 0, 0, 0);
         const isCurrent = now >= start && now < end;
 
+        // RESET BUTTON VISIBILITY (fixing the bug)
         document.getElementById('report-btn').style.display = isCurrent ? 'block' : 'none';
+        document.getElementById('confirm-btn').style.display = 'block';
+        document.getElementById('cancel-btn').innerText = "Fermer";
 
-        if (reservationCount >= 2) {
+        if (isLimitReached) {
             document.getElementById('confirm-btn').disabled = true;
             document.getElementById('confirm-btn').style.opacity = '0.5';
             document.getElementById('confirm-btn').style.cursor = 'not-allowed';
@@ -291,7 +297,11 @@ document.addEventListener('DOMContentLoaded', () => {
         end.setHours(block.endHour, 0, 0, 0);
         const isCurrent = now >= start && now < end;
 
+        // RESET BUTTON VISIBILITY (fixing the bug)
         document.getElementById('report-btn').style.display = isCurrent ? 'block' : 'none';
+        document.getElementById('confirm-btn').style.display = 'block';
+        document.getElementById('confirm-btn').innerText = "Confirmer l'annulation";
+        document.getElementById('cancel-btn').innerText = "Fermer";
 
         document.getElementById('confirm-btn').disabled = false;
         document.getElementById('confirm-btn').style.opacity = '1';
@@ -367,6 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         await saveDB(); // wait for save to complete
         modal.classList.remove('active');
+        document.getElementById('confirm-btn').innerText = "Confirmer"; // Reset text
         selectedSlotToBook = null;
         renderGrid();
         renderStats();
