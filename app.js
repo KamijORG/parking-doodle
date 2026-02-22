@@ -62,6 +62,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Build the grid
     function renderGrid() {
+        if (!state.apartment) {
+            scheduleEl.innerHTML = `
+                <div style="text-align:center; padding: 4rem 1rem; color: var(--danger); font-weight: bold; background: rgba(255,255,255,0.05); border-radius: 12px; margin-top: 1rem; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">⛔</div>
+                    Accès refusé
+                    <br><br>
+                    <span style="color:var(--text-main); font-weight:normal; font-size: 1rem;">Veuillez scanner l'un des QR codes officiels de la résidence pour accéder au planning de réservation.</span>
+                </div>`;
+            return;
+        }
+
         scheduleEl.innerHTML = '';
 
         // Helper to get dates for the next 8 days starting today
@@ -629,6 +640,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderStats() {
         const statsGrid = document.getElementById('stats-grid');
         const historyBody = document.getElementById('history-body');
+        const statsSection = document.getElementById('stats-section');
+
+        if (!state.apartment) {
+            if (statsSection) statsSection.style.display = 'none';
+            return;
+        }
+
+        if (statsSection) statsSection.style.display = 'block';
+
         if (!statsGrid || !historyBody) return;
 
         // Stats calculation
