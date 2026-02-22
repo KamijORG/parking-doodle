@@ -658,6 +658,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (trackingToken === 'gerant_bypass_26') {
             const splash = document.getElementById('splash-warning');
             if (splash) splash.style.display = 'none';
+            const statsSec = document.getElementById('stats-section');
+            if (statsSec) statsSec.style.display = 'none';
         }
 
         await fetchDB(); // get initial data

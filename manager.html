@@ -95,6 +95,13 @@
         </div>
 
         <div class="manager-container" style="margin-top: 2rem;">
+            <h3>📊 Utilisation du mois en cours</h3>
+            <div id="manager-stats-grid" class="stats-grid" style="margin-top: 1rem;">
+                <!-- Stats will be injected here -->
+            </div>
+        </div>
+
+        <div class="manager-container" style="margin-top: 2rem;">
             <h3>Historique récent</h3>
             <div class="table-container">
                 <table>
@@ -138,6 +145,7 @@
                     db = await res.json();
                     renderReports();
                     renderHistory();
+                    renderManagerStats();
                 }
             } catch (e) {
                 console.error('Error fetching DB', e);
@@ -272,6 +280,35 @@
                     <td style="color:${log.status.includes('OK') ? 'var(--success)' : 'var(--warning)'}">${log.status}</td>
                 `;
                 body.appendChild(row);
+            });
+        }
+
+        function renderManagerStats() {
+            const statsGrid = document.getElementById('manager-stats-grid');
+            if (!statsGrid) return;
+
+            const now = new Date();
+            const thisMonth = now.getMonth();
+            const thisYear = now.getFullYear();
+
+            const usage = { "1": 0, "2": 0, "3": 0, "4": 0 };
+            const logs = db.logs || [];
+            logs.forEach(log => {
+                const logDate = new Date(log.timestamp);
+                if (logDate.getMonth() === thisMonth && logDate.getFullYear() === thisYear) {
+                    usage[log.apt] = (usage[log.apt] || 0) + 3; // Approx 3h per block
+                }
+            });
+
+            statsGrid.innerHTML = '';
+            [1, 2, 3, 4].forEach(apt => {
+                const card = document.createElement('div');
+                card.className = 'stats-card';
+                card.innerHTML = `
+                    <span class="val">${usage[apt]}h</span>
+                    <span class="label">Apt ${apt}</span>
+                `;
+                statsGrid.innerHTML += card.outerHTML;
             });
         }
 
