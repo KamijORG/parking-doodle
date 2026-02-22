@@ -544,3 +544,59 @@ button.secondary {
     opacity: 1;
     bottom: 50px;
 }
+
+/* Splash Warning Overlay */
+.splash-warning {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-gradient);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    animation: fadeOutSplash 1.5s forwards;
+    animation-delay: 3.5s;
+    pointer-events: none;
+}
+
+.warning-box {
+    background: rgba(220, 53, 69, 0.1);
+    border: 4px solid #dc3545;
+    color: #ff6b6b;
+    padding: 40px;
+    border-radius: 16px;
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-align: center;
+    max-width: 600px;
+    line-height: 1.4;
+    animation: flashWarning 0.8s infinite alternate;
+    box-shadow: 0 0 30px rgba(220, 53, 69, 0.4);
+    pointer-events: auto;
+}
+
+@keyframes flashWarning {
+    from {
+        opacity: 1;
+        transform: scale(1);
+        box-shadow: 0 0 40px rgba(220, 53, 69, 0.8);
+        border-color: #ff4757;
+    }
+    to {
+        opacity: 0.8;
+        transform: scale(0.98);
+        box-shadow: 0 0 10px rgba(220, 53, 69, 0.2);
+        border-color: #dc3545;
+    }
+}
+
+@keyframes fadeOutSplash {
+    to {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
