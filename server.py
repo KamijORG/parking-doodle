@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, Response
 from flask_cors import CORS
 from supabase import create_client, Client
 from dotenv import load_dotenv
@@ -62,9 +62,26 @@ def get_tokens():
             return json.load(f)
     return {}
 
+def check_auth(username, password):
+    # Identifiants simples pour l'accès gérant
+    return username == 'admin' and password == 'parking26'
+
+def authenticate():
+    return Response(
+        'Accès refusé. Authentification requise.', 401,
+        {'WWW-Authenticate': 'Basic realm="Accès Gérant"'}
+    )
+
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
+
+@app.route('/manager.html')
+def manager_page():
+    auth = request.authorization
+    if not auth or not check_auth(auth.username, auth.password):
+        return authenticate()
+    return send_from_directory('.', 'manager.html')
 
 @app.route('/<path:path>')
 def static_files(path):
