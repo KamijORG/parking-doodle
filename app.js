@@ -420,6 +420,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function checkActiveReservation() {
+        if (!state.apartment || state.apartment === 'Gérant') return;
+
         const now = new Date();
         const yyyymmddNow = now.toISOString().split('T')[0];
         const currentHour = now.getHours();
