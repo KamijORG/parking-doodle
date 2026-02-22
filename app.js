@@ -668,7 +668,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const apt = await validateToken(trackingToken);
             if (apt) {
                 state.apartment = apt;
-                document.querySelector('header p').innerText = `Appartement ${apt} sélectionné (via Token)`;
+                if (apt === 'Gérant') {
+                    document.querySelector('header p').innerText = `Mode Super Gérant activé`;
+                } else {
+                    document.querySelector('header p').innerText = `Appartement ${apt}`;
+                }
             } else {
                 document.querySelector('header p').innerText = `Token invalide ou expiré.`;
             }
