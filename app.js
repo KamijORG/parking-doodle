@@ -629,6 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check if we should show the abuse warning splash screen
     function checkDailyAbuse() {
+        if (trackingToken === 'gerant_bypass_26') return;
         if (!state.apartment || state.apartment === 'Gérant') return;
 
         const now = new Date();
@@ -654,6 +655,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial load logic
     async function initApp() {
+        if (trackingToken === 'gerant_bypass_26') {
+            const splash = document.getElementById('splash-warning');
+            if (splash) splash.style.display = 'none';
+        }
+
         await fetchDB(); // get initial data
 
         if (trackingToken) {
