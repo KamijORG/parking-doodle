@@ -380,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
             at: Date.now()
         };
         await saveDB();
-        alert("Signalement envoyé. Merci pour votre vigilance.");
+        showToast("Signalement envoyé");
         modal.classList.remove('active');
         renderGrid();
     });
@@ -627,3 +627,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initApp();
 });
+
+// Custom Toast Notification
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    if (toast) {
+        toast.innerText = message;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+}
