@@ -713,7 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (apt) {
                 state.apartment = apt;
                 if (apt === 'Gérant') {
-                    document.querySelector('header p').innerText = `Mode Super Gérant activé`;
+
                 } else {
                     document.querySelector('header p').innerText = `Appartement ${apt}`;
                 }
