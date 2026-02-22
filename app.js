@@ -625,6 +625,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Check if we should show the abuse warning splash screen
+    function checkDailyAbuse() {
+        if (!state.apartment || state.apartment === 'Gérant') return;
+
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+        // Look for any report made today
+        let abuseReportedToday = false;
+        for (const key in reports) {
+            if (reports[key].at >= startOfDay) {
+                abuseReportedToday = true;
+                break;
+            }
+        }
+
+        const splash = document.getElementById('splash-warning');
+        if (splash && abuseReportedToday) {
+            splash.style.display = 'flex';
+            splash.style.pointerEvents = 'none';
+            splash.style.animation = 'fadeOutSplash 1.5s forwards';
+            splash.style.animationDelay = '3.5s';
+        }
+    }
+
     // Initial load logic
     async function initApp() {
         await fetchDB(); // get initial data
@@ -644,6 +669,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderGrid();
         checkActiveReservation();
         renderStats();
+        checkDailyAbuse();
     }
 
     initApp();
