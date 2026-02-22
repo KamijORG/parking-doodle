@@ -230,18 +230,27 @@
             listEl.innerHTML = '';
 
             const reportKeys = Object.keys(db.reports || {});
-            if (reportKeys.length === 0) {
-                listEl.innerHTML = '<div class="empty-state">Aucun signalement en cours.</div>';
-                return;
-            }
+            const now = new Date();
+            const todayStr = now.toLocaleDateString('fr-FR');
+
+            let activeReportsCount = 0;
 
             reportKeys.forEach(key => {
                 const report = db.reports[key];
+                const reportDate = new Date(report.at);
+
+                // Only show reports made today
+                if (reportDate.toLocaleDateString('fr-FR') !== todayStr) {
+                    return;
+                }
+
+                activeReportsCount++;
+
                 const parts = key.split('_');
                 const day = parts[0];
                 const slotId = parts[1];
                 const parking = parts[2];
-                const timeStr = new Date(report.at).toLocaleString('fr-FR');
+                const timeStr = reportDate.toLocaleString('fr-FR');
 
                 const card = document.createElement('div');
                 card.className = 'report-card';
@@ -257,6 +266,10 @@
                 `;
                 listEl.appendChild(card);
             });
+
+            if (activeReportsCount === 0) {
+                listEl.innerHTML = "<div class='empty-state'>Aucun signalement en cours pour aujourd'hui.</div>";
+            }
         }
 
         async function clearReport(key) {
