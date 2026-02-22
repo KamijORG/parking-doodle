@@ -308,12 +308,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function openCancelModal(block, slotId, dayData) {
-        document.getElementById('modal-title').innerText = "Annuler la réservation";
-        document.getElementById('modal-details').innerHTML = `
-            Voulez-vous <strong>annuler</strong> votre réservation pour la <strong>Place ${state.parking}</strong><br>
-            le <strong>${dayData.label.replace('<br>', ' ')}</strong> de <strong>${block.label.replace('<br>', ' ')}</strong> ?
-        `;
-
         // Allow reporting only if it's the current slot
         const now = new Date();
         const start = new Date(dayData.key);
@@ -323,14 +317,23 @@ document.addEventListener('DOMContentLoaded', () => {
         end.setHours(block.endHour, 0, 0, 0);
         const isCurrent = now >= start && now < end;
 
-        // RESET BUTTON VISIBILITY (fixing the bug)
-        document.getElementById('report-btn').style.display = isCurrent ? 'block' : 'none';
-
         const isManager = state.apartment === 'Gérant';
+
         if (isCurrent && !isManager) {
+            document.getElementById('modal-title').innerText = "Réservation en cours";
+            document.getElementById('modal-details').innerHTML = `
+                <span style="color:var(--accent);">
+                    ⚠️ Cette réservation est en cours.<br><br>
+                    Veuillez utiliser le bouton "Check Out" en haut de la page pour la terminer anticipativement.
+                </span>
+            `;
             document.getElementById('confirm-btn').style.display = 'none';
-            document.getElementById('modal-details').innerHTML += `<br><br><span style="color:var(--accent);">⚠️ Cette réservation est en cours. Veuillez utiliser le bouton "Check Out" en haut de la page pour la terminer anticipativement.</span>`;
         } else {
+            document.getElementById('modal-title').innerText = "Annuler la réservation";
+            document.getElementById('modal-details').innerHTML = `
+                Voulez-vous <strong>annuler</strong> votre réservation pour la <strong>Place ${state.parking}</strong><br>
+                le <strong>${dayData.label.replace('<br>', ' ')}</strong> de <strong>${block.label.replace('<br>', ' ')}</strong> ?
+            `;
             document.getElementById('confirm-btn').style.display = 'block';
             document.getElementById('confirm-btn').innerText = "Confirmer l'annulation";
             document.getElementById('confirm-btn').disabled = false;
@@ -338,6 +341,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('confirm-btn').style.cursor = 'pointer';
         }
 
+        // RESET BUTTON VISIBILITY (fixing the bug)
+        document.getElementById('report-btn').style.display = isCurrent ? 'block' : 'none';
         document.getElementById('cancel-btn').innerText = "Fermer";
 
         selectedSlotToBook = { type: 'cancel', slotId: slotId, day: dayData.key };
