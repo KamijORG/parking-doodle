@@ -193,13 +193,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         e.stopPropagation();
                         // If no apartment selected, ask them to click a QR code
                         if (!state.apartment) {
-                            alert("Veuillez sélectionner votre appartement en cliquant sur un des 4 QR codes ci-dessous, ou scannez le QR code avec votre téléphone.");
+                            openAlertModal("Veuillez sélectionner votre appartement en cliquant sur un des 4 QR codes ci-dessous, ou scannez le QR code avec votre téléphone.");
                             return;
                         }
 
                         // Block interaction if reported and not Gérant
                         if (reports[reportKey] && state.apartment !== 'Gérant') {
-                            alert("⚠️ Ce créneau a été signalé comme abusivement occupé et est temporairement bloqué en attente de l'intervention du gérant.");
+                            openAlertModal("⚠️ Ce créneau a été signalé comme abusivement occupé et est temporairement bloqué en attente de l'intervention du gérant.");
                             return;
                         }
 
@@ -223,6 +223,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Custom Alert Modal
+    function openAlertModal(msg) {
+        document.getElementById('modal-title').innerText = "Information";
+        document.getElementById('modal-details').innerHTML = `
+            <div style="text-align: center; margin-top: 15px;">
+                ${msg}
+            </div>
+        `;
+        document.getElementById('report-btn').style.display = 'none';
+        document.getElementById('confirm-btn').style.display = 'none';
+        document.getElementById('cancel-btn').innerText = "Fermer";
+
+        selectedSlotToBook = null;
+        modal.classList.add('active');
+    }
+
     // Modal logic
     function openBookingModal(block, slotId, dayData) {
         const now = new Date();
@@ -239,12 +255,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (isPast) {
-            alert("⚠️ Vous ne pouvez pas réserver un créneau dans le passé.");
+            openAlertModal("⚠️ Vous ne pouvez pas réserver un créneau dans le passé.");
             return;
         }
 
         if (state.apartment !== 'Gérant' && penalties[state.apartment] && penalties[state.apartment].bannedUntil && penalties[state.apartment].bannedUntil > Date.now()) {
-            alert("⚠️ Vous ne pouvez pas réserver car vous avez eu 3 retards ou oublis de check-out. Vous êtes suspendu pour 1 semaine.");
+            openAlertModal("⚠️ Vous ne pouvez pas réserver car vous avez eu 3 retards ou oublis de check-out. Vous êtes suspendu pour 1 semaine.");
             return;
         }
 
